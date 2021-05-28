@@ -1,0 +1,48 @@
+.wrapper {
+    display: grid;
+    grid-template-columns: 40px 40px 40px;
+    grid-template-rows:  40px 40px 40px 40px;
+    justify-items: center;
+    align-items: center;
+}
+
+.wrapper > div {
+  border: 1px dashed gray;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+.name-label {
+  grid-column: span 3;
+}
+
+.check-square{  
+    width: 200px;
+    height:200px;
+    border-radius: 50%;
+    background-color:#f00;
+ 
+    font-size:72px;
+    color:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+   
+    transform: scale(0);
+    animation-name:check-square;
+    animation-duration:4s;
+    animation-fill-mode:forwards;
+    animation-iteration-count:initial;
+}
+@keyframes check-square{
+  0%{
+    transform: scale(1);    
+  }
+  10%{
+    transform: scale(0.2);    
+  }
+  100%{
+    transform: scale(0.2);    
+  }
+}
