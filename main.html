@@ -37,22 +37,13 @@
           </div>
 
         <div class="row mb-2">
-              <button type="button" id="initButton" class="btn btn-danger col-md-3">初期化</button>
+              <button type="button" id="initButton" class="btn btn-danger col-md-3 mr-2">初期化</button>
+              <input  type="file"   id="fileInput" hidden>
+              <button type="button" id="inputBingoCardButton" class="btn btn-danger col-md-3">ビンゴカード読み込み</span>
+              
         </div>
-        <div class="row mb-2">
-            <button type="button" id="number1" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">1</button>
-            <button type="button" id="number2" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">2</button>
-            <button type="button" id="number3" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">3</button>
-            <button type="button" id="number4" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">4</button>
-            <button type="button" id="number5" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">5</button>
-            <button type="button" id="number6" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">6</button>
-            <button type="button" id="number7" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">7</button>
-            <button type="button" id="number8" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">8</button>
-            <button type="button" id="number9" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">9</button>
-            <button type="button" id="number10" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">10</button>
-            <button type="button" id="number11" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">11</button>
-            <button type="button" id="number12" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">12</button>
-            <button type="button" id="number13" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">13</button>
+        <div id="numbersButton"class="row mb-2">
+
         </div>
         <div class="all-bingo-card row">
         </div>
@@ -61,6 +52,9 @@
     </main>
     <script>
     $(function(){
+
+      //読み込んだデータ
+      var inputData;
 
       //走査列
       var scanLine = [
@@ -74,33 +68,8 @@
           [2, 4, 6]
       ];
 
-    　//ビンゴカード
-      var arr = [
-          [1, 2, 3, 4, 5, 6, 7, 8, 9],
-          [9, 8, 7, 6, 5, 4, 3, 2, 1],
-          [2, 1, 3, 5, 4, 8, 7, 9, 6],
-          [4, 3, 6, 1, 5, 2, 7, 8, 9],
-          [1, 3, 8, 5, 4, 6, 2, 7, 9],
-          [2, 3, 1, 5, 6, 4, 9, 7, 8],
-          [1, 3, 8, 5, 4, 6, 2, 7, 9],
-          [2, 3, 1, 5, 6, 4, 9, 7, 8]
-      ];
-
-      //名前
-      var name = [
-        "aaa",
-        "bbb",
-        "ccc",
-        "ddd",
-        "afa",
-        "fda",
-        "gaa",
-        "fda",
-        "gaa"
-      ];
-
       //ビンゴした数
-      var sumBingo = new Array(8).fill(0);
+      var sumBingo;
 
       //一度ビンゴしたかどうかフラグ
       var alreadyBingo = new Array(8).fill(false);
@@ -113,32 +82,75 @@
 
       //ビンゴカードの表示初期化
       $(document).on('click', '#initButton', function(){
+
+        // ビンゴゲームで割り当てるビンゴ数だけボタンを配置する
+        for (var i = 1; i <= inputData["maxBingoNumber"]; i++) {
+          $('#numbersButton').append('<button type="button" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">'+ i +'</button>');
+        }
+
         //$('#button').trigger('click', [$(this).text()]);
-          $.each(arr, function(index1, arr2) {
-            $('.all-bingo-card').append('<div class="wrapper col-md-2 mb-4 grid' + index1 + '"></div>')
-            $('.grid' + index1).append('<p class="name-label">' + name[index1] + 'さん</p>')
-            $.each(arr2, function(index2, element) {
-                $('.grid' + index1).append('<div class="grid-' + index1 + '-' + index2 + '">' + element + '</div>');
-              });
-          });          
+          $.each(inputData["bingoCardData"], function(i, eachPersonData) {
+            $('.all-bingo-card').append('<div class="wrapper col-md-2 mb-4 grid' + i + '"></div>')
+            $('.grid' + i).append('<p class="name-label">' + eachPersonData["playerName"] + 'さん</p>')
+
+            // 各自の設定した番号を書き出す
+            $.each(eachPersonData["bingoCard"], function(j, number) {
+                $('.grid' + i).append('<div class="grid-' + i + '-' + j + '">' + number + '</div>');
+            });
+          });   
+
       });
 
       $(document).on('click', '.modal-close-button', function(){
         $('.modal-body').empty();
       });
 
+      $(document).on('click', '#inputBingoCardButton', function(){
+        $('#fileInput').click();
+      });
+
+
+      //JSONデータ読み込み
+      $(document).on('change', '#fileInput', function(){
+        var jsonReader = new FileReader();
+        var file = this.files[0];
+        //console.log(file.result);
+
+        jsonReader.onload = function () {
+          //JSONデータ確認
+          console.log(JSON.parse(jsonReader.result));
+          //いろいろ初期化
+          inputData = JSON.parse(jsonReader.result);
+          var gridNumber = inputData["gridNumber"];
+          var participantNumber = inputData["bingoCardData"].length;
+          sumBingo = new Array(participantNumber).fill(0);
+          alreadyBingo = new Array(participantNumber).fill(false);
+
+          //結果保持用配列
+          var result = new Array(participantNumber);
+          for(let y = 0; y < result.length; y++) {
+            console.log(gridNumber * gridNumber);
+            result[y] = new Array(gridNumber * gridNumber).fill(false);
+          }
+        }
+
+        jsonReader.readAsText(file);
+        
+      });
+
+      //ビンゴ判定
       $(document).on('click', '.number-btn', function(){
           //console.log($(this).text());
           var selectNumber = $(this).text();
 
           var bingoFlag = false;
 
-          $.each(arr, function(index1, arr2) {
-            $.each(arr2, function(index2, element) {
+          $.each(inputData["bingoCardData"], function(index1, eachPersonData) {
+            $.each(eachPersonData["bingoCard"], function(index2, number) {
                 //console.log(result[index1][index2]);
                 var randomWaitTime = Math.random() * 500;
 
-                if (element == selectNumber) {
+                if (number == selectNumber) {
                     result[index1][index2] = true;
                     // $('.grid-' + index1 + '-' + index2).css('background','red');
                     setTimeout(function(){
@@ -158,7 +170,7 @@
                 console.log(target[0] + '-' + target[1] + '-' + target[2] + '-')
                 //console.log('.grid-' + index1 + '-' + target[0]);
                 setTimeout(function(){
-                  $('.grid-' + i+ '-' + target[0]).css('background-color','green');
+                  $('.grid-' + i + '-' + target[0]).css('background-color','green');
                   $('.grid-' + i + '-' + target[1]).css('background-color','green');
                   $('.grid-' + i + '-' + target[2]).css('background-color','green');
                 },1000);
@@ -170,7 +182,7 @@
               
               // 初ビンゴの時
               if (alreadyBingo[i] == false) {
-                $('.modal-body').append('<p class="winner">' + name[i] + 'さん</p>');
+                $('.modal-body').append('<p class="winner">' + inputData["bingoCardData"][i]["playerName"] + 'さん</p>');
               }
               
               if (alreadyBingo[i] == false) {

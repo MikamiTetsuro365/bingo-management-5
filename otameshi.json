@@ -1,0 +1,38 @@
+{
+    "gridNumber" : 3,
+    "maxBingoNumber": 13,
+    "bingoCardData" : [
+        {
+            "playerName" : "aa",
+            "bingoCard" : [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        },
+        {
+            "playerName" : "bb",
+            "bingoCard" : [9, 8, 7, 6, 5, 4, 3, 2, 1]
+        },
+        {
+            "playerName" : "cc",
+            "bingoCard" : [2, 1, 3, 5, 4, 8, 7, 9, 6]
+        },
+        {
+            "playerName" : "dd",
+            "bingoCard" : [4, 3, 6, 1, 5, 2, 7, 8, 9]
+        },
+        {
+            "playerName" : "ee",
+            "bingoCard" : [1, 3, 8, 5, 4, 6, 2, 7, 9]
+        },
+        {
+            "playerName" : "ff",
+            "bingoCard" : [2, 3, 1, 5, 6, 4, 9, 7, 8]
+        },
+        {
+            "playerName" : "gg",
+            "bingoCard" : [1, 3, 8, 5, 4, 6, 2, 7, 9]
+        },
+        {
+            "playerName" : "hh",
+            "bingoCard" : [2, 3, 1, 5, 6, 4, 9, 7, 8]
+        }
+    ]
+}
