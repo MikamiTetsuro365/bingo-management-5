@@ -72,13 +72,10 @@
       var sumBingo;
 
       //一度ビンゴしたかどうかフラグ
-      var alreadyBingo = new Array(8).fill(false);
+      var alreadyBingo;
 
       //結果保持用配列
-      var result = new Array(8);
-      for(let y = 0; y < result.length; y++) {
-        result[y] = new Array(9).fill(false);
-      }
+      var result;
 
       //ビンゴカードの表示初期化
       $(document).on('click', '#initButton', function(){
@@ -124,12 +121,12 @@
           var gridNumber = inputData["gridNumber"];
           var participantNumber = inputData["bingoCardData"].length;
           sumBingo = new Array(participantNumber).fill(0);
+
           alreadyBingo = new Array(participantNumber).fill(false);
 
           //結果保持用配列
-          var result = new Array(participantNumber);
+          result = new Array(participantNumber);
           for(let y = 0; y < result.length; y++) {
-            console.log(gridNumber * gridNumber);
             result[y] = new Array(gridNumber * gridNumber).fill(false);
           }
         }
