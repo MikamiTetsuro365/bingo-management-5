@@ -1,6 +1,6 @@
 {
     "gridNumber" : 3,
-    "maxBingoNumber": 13,
+    "maxBingoNumber": 50,
     "bingoCardData" : [
         {
             "playerName" : "aa",

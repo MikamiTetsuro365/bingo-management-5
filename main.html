@@ -10,13 +10,11 @@
   </head>
   <body class="d-flex flex-column h-100">
     <header>
-      <!-- Fixed navbar -->
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <a class="navbar-brand" href="https://getbootstrap.jp/docs/4.3/examples/sticky-footer-navbar/#">超ビンゴォ</a>
       </nav>
     </header>
 
-    <!-- Begin page content -->
     <main role="main" class="flex-shrink-0">
       <div class="container">
 
@@ -24,7 +22,7 @@
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">ビンゴ！</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel"></h5>
                 </div>
                 <div class="modal-body">
 
@@ -38,9 +36,10 @@
 
         <div class="row mb-2">
           <input  type="file"   id="fileInput" hidden>
-          <button type="button" id="inputBingoCardButton" class="btn btn-danger col-md-3">ビンゴカード読み込み</button>>
+          <button type="button" id="inputBingoCardButton" class="btn btn-danger col-md-3 mr-2">ビンゴカード読み込み</button>
           <button type="button" id="initButton" class="btn btn-danger col-md-2 mr-2">初期化</button>
           <button type="button" id="returnButton" class="btn btn-danger col-md-2 mr-2">1つ戻す</button>
+          <button type="button" id="bingoListButton" class="btn btn-danger col-md-2 mr-2">ビンゴ者一覧</button>
         </div>
         <div id="numbersButton"class="row mb-2">
 
@@ -56,7 +55,7 @@
       //読み込んだデータ
       var inputData;
 
-      //走査列
+      //走査列(いけてない)
       var scanLine = [
           [0, 1, 2],
           [0, 3, 6],
@@ -87,16 +86,16 @@
       $(document).on('click', '#initButton', function(){
 
         // ビンゴゲームで割り当てるビンゴ数だけボタンを配置する
-        for (var i = 0; i < inputData["maxBingoNumber"]; i++) {
-          const numberButtonContainerId = parseInt(i / 12);
+        for (let i = 0; i <= inputData["maxBingoNumber"]; i++) {
+          let numberButtonContainerId = parseInt(i / 12);
           if(i % 12 == 0) {
             $('#numbersButton').append('<div class="col-md-6"><div id="numberButtonChild' + numberButtonContainerId + '" class="row"></div></div>');
           }
         }
 
-        for (var i = 0; i < inputData["maxBingoNumber"]; i++) {
-          const numberButtonId = parseInt(i / 11);
-          const number = i + 1;
+        for (let i = 0; i < inputData["maxBingoNumber"]; i++) {
+          let numberButtonId = parseInt(i / 11);
+          let number = i + 1;
           $('#numberButtonChild' + numberButtonId).append('<button type="button" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">'+ number +'</button>');
         }
 
@@ -114,6 +113,7 @@
       });
 
       $(document).on('click', '.modal-close-button', function(){
+        $('#staticBackdropLabel').empty();
         $('.modal-body').empty();
       });
 
@@ -121,11 +121,25 @@
         $('#fileInput').click();
       });
 
+      $(document).on('click', '#bingoListButton', function(){
+        let order = 1;
+        $.each(orderOfBingo, function(i, bingoPersons) {
+          if (bingoPersons.length != 0) {
+            $('.modal-body').append('<h4>' + order + 'ビンゴ目</h4>');
+            order++;
+          } 
+          $.each(bingoPersons, function(j, person) {
+            $('.modal-body').append('<p class="winner">' + inputData["bingoCardData"][j]["playerName"] + 'さん</p>');
+          });
+        });
+        $('#staticBackdropLabel').append('<span>ビンゴ者一覧<span>');
+        $('.modal').modal('show')
+      });
 
       //JSONデータ読み込み
       $(document).on('change', '#fileInput', function(){
-        var jsonReader = new FileReader();
-        var file = this.files[0];
+        let jsonReader = new FileReader();
+        let file = this.files[0];
         //console.log(file.result);
 
         jsonReader.onload = function () {
@@ -133,8 +147,8 @@
           console.log(JSON.parse(jsonReader.result));
           //いろいろ初期化
           inputData = JSON.parse(jsonReader.result);
-          var gridNumber = inputData["gridNumber"];
-          var participantNumber = inputData["bingoCardData"].length;
+          let gridNumber = inputData["gridNumber"];
+          let participantNumber = inputData["bingoCardData"].length;
           sumBingo = new Array(participantNumber).fill(0);
 
           alreadyBingo = new Array(participantNumber).fill(false);
@@ -153,15 +167,15 @@
       //ビンゴ判定
       $(document).on('click', '.number-btn', function(){
           console.log($(this).text());
-          var selectNumber = $(this).text();
+          let selectNumber = $(this).text();
 
           orderOfNumber.push(selectNumber);
 
-          var bingoFlag = false;
+          let bingoFlag = false;
 
           $.each(inputData["bingoCardData"], function(index1, eachPersonData) {
             $.each(eachPersonData["bingoCard"], function(index2, number) {
-                var randomWaitTime = Math.random() * 500;
+                let randomWaitTime = Math.random() * 500;
 
                 if (number == selectNumber) {
                     result[index1][index2] = true;
@@ -177,10 +191,10 @@
           }); 
           
           //ビンゴになった人の集合
-          const bingoArray = new Array();
+          let bingoArray = new Array();
 
           $.each(result, function(i, resultLine) {
-            var count = 0;
+            let count = 0;
 
             $.each(scanLine, function(s, target) {
               if (resultLine[target[0]] && resultLine[target[1]] && resultLine[target[2]]) {
@@ -194,7 +208,6 @@
             });
 
             if (count > 0) {
-              
               // 初ビンゴの時
               if (alreadyBingo[i] == false) {
                 $('.modal-body').append('<p class="winner">' + inputData["bingoCardData"][i]["playerName"] + 'さん</p>');
@@ -211,6 +224,7 @@
 
           if (bingoFlag == true) {
             setTimeout(function(){
+              $('#staticBackdropLabel').append('<span>ビンゴ！！！<span>');
               $('.modal').modal('show')
             },1500);
           }
