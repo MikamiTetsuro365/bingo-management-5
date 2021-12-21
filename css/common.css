@@ -50,3 +50,9 @@ p {
     transform: scale(0.2);    
   }
 }
+
+.name-input {
+  text-align: center;
+  width: 100px;
+  font-size: 12px;
+}

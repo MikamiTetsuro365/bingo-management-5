@@ -35,10 +35,28 @@
           </div>
 
         <div class="row mb-2">
-          <input  type="file"   id="fileInput" hidden>
-          <button type="button" id="inputBingoCardButton" class="btn btn-danger col-md-3 mr-2">ビンゴカード読み込み</button>
-          <button type="button" id="initButton" class="btn btn-danger col-md-2 mr-2">初期化</button>
-          <button type="button" id="returnButton" class="btn btn-danger col-md-2 mr-2">1つ戻す</button>
+          <!-- <input  type="file"   id="fileInput" hidden>
+          <button type="button" id="inputBingoCardButton" class="btn btn-danger col-md-3 mr-2">ビンゴカード読み込み</button> -->
+          <div class="col-md-3 mr-3">
+            <div class="row">
+              <label for="participant-num-bar col-md-12" class="form-label">ビンゴカードの枚数設定</label>
+            </div>
+            <div class="row">
+              <input type="range" class="participant-num-bar col-md-10" min="2" max="500" value="5" id="participant-num-bar">
+              <h6 class="col-md-2"><span id="participant-num" class="badge badge-warning">5人</span></h6>
+            </div>
+          </div>
+          <div class="col-md-3 mr-3">
+            <div class="row">
+              <label for="participant-num-bar col-md-12" class="form-label">ビンゴカードに使う数字の最大値</label>
+            </div>
+            <div class="row">
+              <input type="range" class="maxBingoNumber-bar col-md-10" min="9" max="50" value="20" id="maxBingoNumber-bar">
+              <h6 class="col-md-2"><span id="maxBingoNumber" class="badge badge-warning">20</span></h6>
+            </div>
+          </div>
+          <button type="button" id="initButton" class="btn btn-danger col-md-1 mr-2">生成</button>
+          <button type="button" id="returnButton" class="btn btn-danger col-md-1 mr-2">1つ戻す</button>
           <button type="button" id="bingoListButton" class="btn btn-danger col-md-2 mr-2">ビンゴ者一覧</button>
         </div>
         <div id="numbersButton"class="row mb-2">
@@ -53,7 +71,7 @@
     $(function(){
 
       //読み込んだデータ
-      var inputData;
+      var inputData = [];
 
       //走査列(いけてない)
       var scanLine = [
@@ -82,33 +100,70 @@
       //ビンゴが出た順番とビンゴした人の記録
       var orderOfBingo = new Array();
 
-      //ビンゴカードの表示初期化
+      //初期化
       $(document).on('click', '#initButton', function(){
+        $("#initButton").prop("disabled", true);
+        $("#participant-num-bar").prop("disabled", true);
+        $("#maxBingoNumber-bar").prop("disabled", true);
+
+
+        // 各種配列用意
+        let gridNumber = 3; // 3 * 3のビンゴカードなので
+        let participantNumber = parseInt($('#participant-num-bar').val());
+        sumBingo = new Array(participantNumber).fill(0);
+
+        alreadyBingo = new Array(participantNumber).fill(false);
+
+        //結果保持用配列
+        result = [];
+        for(let y = 0; y < participantNumber; y++) {
+          result.push(new Array(gridNumber * gridNumber).fill(false));
+        }
 
         // ビンゴゲームで割り当てるビンゴ数だけボタンを配置する
-        for (let i = 0; i <= inputData["maxBingoNumber"]; i++) {
+        for (let i = 0; i <= $('#maxBingoNumber-bar').val(); i++) {
           let numberButtonContainerId = parseInt(i / 12);
           if(i % 12 == 0) {
             $('#numbersButton').append('<div class="col-md-6"><div id="numberButtonChild' + numberButtonContainerId + '" class="row"></div></div>');
           }
         }
 
-        for (let i = 0; i < inputData["maxBingoNumber"]; i++) {
+        for (let i = 0; i < $('#maxBingoNumber-bar').val(); i++) {
           let numberButtonId = parseInt(i / 11);
           let number = i + 1;
           $('#numberButtonChild' + numberButtonId).append('<button type="button" class="number-btn btn btn-primary col-md-1 mr-1 mb-1">'+ number +'</button>');
         }
 
         //$('#button').trigger('click', [$(this).text()]);
-          $.each(inputData["bingoCardData"], function(i, eachPersonData) {
-            $('.all-bingo-card').append('<div class="wrapper col-md-2 mb-4 grid' + i + '"></div>')
-            $('.grid' + i).append('<p class="name-label">' + eachPersonData["playerName"] + 'さん</p>')
+        for (let i = 0; i < participantNumber; i++) {
+          $('.all-bingo-card').append('<div class="wrapper col-md-2 mb-4 grid' + i + '"></div>')
+          $('.grid' + i).append('<input type="text" id="name-'+ i +'"class="name-input name-label" value="名前入力して' + (i + 1) + '"/>')
+          let tempRandomArray = [];
+          for (let j = 0; j < (gridNumber * gridNumber); j++) {
+            for (;;) {
+              let fixedFlag = true;
+              let randomNum = Math.floor( Math.random() *  $('#maxBingoNumber-bar').val()) + 1;
+              for (let h = 0; h < tempRandomArray.length; h++) {
+                if (tempRandomArray[h] == randomNum) {
+                  fixedFlag = false;
+                  break;
+                }
+              }
+              if (fixedFlag == true) {
+                tempRandomArray.push(randomNum);
+                break;
+              }
+            }
+            
+          }
+          
+          inputData.push(tempRandomArray);
 
-            // 各自の設定した番号を書き出す
-            $.each(eachPersonData["bingoCard"], function(j, number) {
-                $('.grid' + i).append('<div class="grid-' + i + '-' + j + '">' + number + '</div>');
-            });
-          });   
+          // 各自の設定した番号を書き出す
+          for (let j = 0; j < tempRandomArray.length; j++) {
+              $('.grid' + i).append('<div class="grid-' + i + '-' + j + '">' + tempRandomArray[j] + '</div>');
+          }
+        }  
 
       });
 
@@ -121,6 +176,14 @@
         $('#fileInput').click();
       });
 
+      $(document).on('change input', '#participant-num-bar', function(){
+        $('#participant-num').text($('#participant-num-bar').val() + "人");
+      });
+
+      $(document).on('change input', '#maxBingoNumber-bar', function(){
+        $('#maxBingoNumber').text($('#maxBingoNumber-bar').val());
+      });
+
       $(document).on('click', '#bingoListButton', function(){
         let order = 1;
         $.each(orderOfBingo, function(i, bingoPersons) {
@@ -129,63 +192,31 @@
             order++;
           } 
           $.each(bingoPersons, function(j, person) {
-            $('.modal-body').append('<p class="winner">' + inputData["bingoCardData"][j]["playerName"] + 'さん</p>');
+            let name = $("#name-" + j).val();
+            $('.modal-body').append('<p class="winner">' + name + 'さん</p>');
           });
         });
         $('#staticBackdropLabel').append('<span>ビンゴ者一覧<span>');
         $('.modal').modal('show')
       });
 
-      //JSONデータ読み込み
-      $(document).on('change', '#fileInput', function(){
-        let jsonReader = new FileReader();
-        let file = this.files[0];
-        //console.log(file.result);
-
-        jsonReader.onload = function () {
-          //JSONデータ確認
-          console.log(JSON.parse(jsonReader.result));
-          //いろいろ初期化
-          inputData = JSON.parse(jsonReader.result);
-          let gridNumber = inputData["gridNumber"];
-          let participantNumber = inputData["bingoCardData"].length;
-          sumBingo = new Array(participantNumber).fill(0);
-
-          alreadyBingo = new Array(participantNumber).fill(false);
-
-          //結果保持用配列
-          result = new Array(participantNumber);
-          for(let y = 0; y < result.length; y++) {
-            result[y] = new Array(gridNumber * gridNumber).fill(false);
-          }
-        }
-
-        jsonReader.readAsText(file);
-        
-      });
-
       //ビンゴ判定
       $(document).on('click', '.number-btn', function(){
-          console.log($(this).text());
           let selectNumber = $(this).text();
 
           orderOfNumber.push(selectNumber);
 
           let bingoFlag = false;
 
-          $.each(inputData["bingoCardData"], function(index1, eachPersonData) {
-            $.each(eachPersonData["bingoCard"], function(index2, number) {
+          $.each(inputData, function(index1, eachPersonData) {
+            $.each(eachPersonData, function(index2, number) {
                 let randomWaitTime = Math.random() * 500;
 
                 if (number == selectNumber) {
                     result[index1][index2] = true;
-                    // $('.grid-' + index1 + '-' + index2).css('background','red');
                     setTimeout(function(){
                         $('.grid-' + index1 + '-' + index2).addClass('check-square');
                     },randomWaitTime);
-
-                    // 結果格納
-                    //result[index1][index2] = true;
                 }
               });
           }); 
@@ -210,7 +241,9 @@
             if (count > 0) {
               // 初ビンゴの時
               if (alreadyBingo[i] == false) {
-                $('.modal-body').append('<p class="winner">' + inputData["bingoCardData"][i]["playerName"] + 'さん</p>');
+                // TODO 後で
+                let name = $("#name-" + i).val();
+                $('.modal-body').append('<p class="winner">' + name + 'さん</p>');
                 alreadyBingo[i] = true;
                 bingoFlag = true;
                 bingoArray.push(i);
@@ -232,9 +265,6 @@
 
       //1つ戻す
       $(document).on('click', '#returnButton', function(){
-        console.log("１つ戻す");
-        console.log(orderOfNumber.length);
-
         if (orderOfNumber.length > 0) {
           const lastNumber = orderOfNumber.pop();
           const bingoArray = orderOfBingo.pop();
@@ -243,11 +273,9 @@
             alreadyBingo[person] = false;
           });
 
-          $.each(inputData["bingoCardData"], function(index1, eachPersonData) {
-              $.each(eachPersonData["bingoCard"], function(index2, number) {
+          $.each(inputData, function(index1, eachPersonData) {
+              $.each(eachPersonData, function(index2, number) {
                 if (number == lastNumber) {
-
-                      console.log("削除対象");
                       result[index1][index2] = false;
 
                       $('.grid-' + index1 + '-' + index2).removeClass('check-square');
