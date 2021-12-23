@@ -1,23 +1,26 @@
 .wrapper {
     display: grid;
-    grid-template-columns: 40px 40px 40px;
-    grid-template-rows:  40px 40px 40px 40px;
+    grid-template-columns: 40px 40px 40px 40px 40px;
+    grid-template-rows:  40px 40px 40px 40px 40px;
     justify-items: center;
     align-items: center;
 }
+
+.wrapper > div[class*="grid"] {
+  width: 40px;
+  height: 40px;
+  border: 1px dashed gray;
+  line-height: 40px;
+  text-align: center;
+}
+
 
 p {
   line-height: 0.5em
 }
 
-.wrapper > div {
-  border: 1px dashed gray;
-  padding-right: 8px;
-  padding-left: 8px;
-}
-
 .name-label {
-  grid-column: span 3;
+  grid-column: span 5;
 }
 
 .check-square{  
@@ -26,33 +29,43 @@ p {
     border-radius: 50%;
     background-color:#f00;
  
-    font-size:72px;
+    font-size:16px;
     color:#fff;
     display:flex;
     justify-content:center;
     align-items:center;
     text-align:center;
-   
-    transform: scale(0);
     animation-name:check-square;
     animation-duration:4s;
     animation-fill-mode:forwards;
     animation-iteration-count:initial;
+    transform: scale(1);
 }
 @keyframes check-square{
   0%{
-    transform: scale(1);    
+    transform: scale(10);    
   }
   10%{
-    transform: scale(0.2);    
+    transform: scale(1.1);    
   }
-  100%{
-    transform: scale(0.2);    
+  12%{
+    transform: scale(1);    
   }
 }
 
 .name-input {
   text-align: center;
-  width: 100px;
+  width: 150px;
   font-size: 12px;
+}
+
+#roulette {
+  height: 40px;
+  justify-items: center;
+}
+
+#rouletteNumber {
+  line-height: 40px;
+  text-align: center;
+  font-size: 40px;
 }
